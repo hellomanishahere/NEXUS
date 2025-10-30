@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Gaming Hub</title>
+    <!-- Load Tailwind CSS CDN for modern, responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for smoother scrolling and aesthetics */
+        :root {
+            --primary-color: #3b82f6; /* Blue-500 */
+            --background-color: #0f172a; /* Slate-900 */
+            --card-bg-color: #1e293b; /* Slate-800 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: white;
+            min-height: 100vh;
+        }
+        /* Custom scrollbar for webkit browsers */
+        .game-list::-webkit-scrollbar {
+            height: 8px;
+        }
+        .game-list::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 10px;
+        }
+        .game-list::-webkit-scrollbar-track {
+            background: var(--card-bg-color);
+        }
+        /* Smooth scrolling for carousel/filter visibility */
+        .game-list {
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+        }
+        .game-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5), 0 4px 6px -2px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#3b82f6',
+                        'background': '#0f172a',
+                        'card-bg': '#1e293b',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="p-4 sm:p-8">
+
+    <!-- Header and Search Bar (Mobile-First) -->
+    <header class="mb-8">
+        <h1 class="text-4xl font-extrabold text-primary mb-2">Nexus Hub</h1>
+        <p class="text-slate-400 mb-6">Your portal to the digital gaming universe.</p>
+
+        <!-- Search Input -->
+        <div class="relative">
+            <input type="text" id="search-input" placeholder="Search games (e.g., RPG, Shooter, Mobile)"
+                   class="w-full p-3 pl-10 rounded-xl bg-card-bg text-white border-2 border-slate-700 focus:border-primary focus:outline-none transition"
+                   oninput="filterGames()">
+            <!-- Search Icon (Inline SVG for simplicity) -->
+            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
+    </header>
+
+    <!-- 1. Featured Carousel/Section -->
+    <section class="mb-10">
+        <h2 class="text-2xl font-bold mb-4">🔥 Featured Games</h2>
+        <div id="carousel-container" class="game-list flex space-x-4 pb-4 overflow-x-scroll">
+            <!-- Carousel items will be populated here -->
+        </div>
+    </section>
+
+    <!-- 2. Filtering Controls -->
+    <section class="mb-8">
+        <h2 class="text-2xl font-bold mb-4">🎮 Explore by Platform</h2>
+        <div id="filter-controls" class="flex flex-wrap gap-2">
+            <button class="filter-btn bg-primary text-white px-4 py-2 rounded-full font-semibold transition hover:bg-blue-600 shadow-md" data-filter="all" onclick="filterGames(this)">All Games</button>
+            <button class="filter-btn bg-card-bg text-slate-300 px-4 py-2 rounded-full font-semibold transition hover:bg-slate-700" data-filter="PC" onclick="filterGames(this)">PC</button>
+            <button class="filter-btn bg-card-bg text-slate-300 px-4 py-2 rounded-full font-semibold transition hover:bg-slate-700" data-filter="Console" onclick="filterGames(this)">Console</button>
+            <button class="filter-btn bg-card-bg text-slate-300 px-4 py-2 rounded-full font-semibold transition hover:bg-slate-700" data-filter="Mobile" onclick="filterGames(this)">Mobile</button>
+        </div>
+    </section>
+
+    <!-- 3. Main Game Listing -->
+    <section>
+        <h2 class="text-2xl font-bold mb-4">🌐 All Titles</h2>
+        <div id="game-list-main" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            <!-- Game cards will be dynamically populated here -->
+            <p id="no-results" class="hidden text-slate-400 col-span-full">No games matched your search criteria.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-12 pt-6 border-t border-slate-700 text-center text-slate-500">
+        <p>&copy; 2025 Nexus Gaming Hub | Capstone Project</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Array of game data (Mock Data)
+        const allGames = [
+            { id: 1, title: 'Starfield Odyssey', platform: 'PC', category: 'RPG', featured: true, description: 'Explore a vast sci-fi galaxy.', rating: 4.8 },
+            { id: 2, title: 'Cyber Drift 2077', platform: 'Console', category: 'Racing', featured: true, description: 'High-speed neon racing action.', rating: 4.5 },
+            { id: 3, title: 'Dungeon Master 5', platform: 'PC', category: 'Strategy', featured: false, description: 'Tactical medieval combat simulator.', rating: 4.2 },
+            { id: 4, title: 'Pixel Runner', platform: 'Mobile', category: 'Arcade', featured: true, description: 'Retro 8-bit endless runner.', rating: 4.0 },
+            { id: 5, title: 'The Last Fortress', platform: 'Console', category: 'Shooter', featured: false, description: 'Intense first-person survival.', rating: 4.7 },
+            { id: 6, title: 'Farm Harvest', platform: 'Mobile', category: 'Simulation', featured: false, description: 'Relaxing agricultural simulation.', rating: 3.9 },
+            { id: 7, title: 'Shadow Realm', platform: 'PC', category: 'RPG', featured: true, description: 'Dark fantasy adventure with deep lore.', rating: 4.9 },
+            { id: 8, title: 'Aether Brawl', platform: 'Console', category: 'Fighting', featured: false, description: 'Multiplayer arena fighting game.', rating: 4.1 },
+            { id: 9, title: 'Tiny Builders', platform: 'Mobile', category: 'Strategy', featured: false, description: 'City-building game for touchscreens.', rating: 4.3 },
+            { id: 10, title: 'Galactic Assault', platform: 'PC', category: 'Shooter', featured: true, description: 'Massive online space battles.', rating: 4.6 },
+            // Add more games to ensure scrolling and variety
+            { id: 11, title: 'Crimson Sky', platform: 'PC', category: 'Action', featured: false, description: 'Open-world aerial combat.', rating: 4.4 },
+            { id: 12, title: 'Echoes of the Void', platform: 'Console', category: 'Adventure', featured: false, description: 'Story-driven puzzle adventure.', rating: 4.7 },
+            { id: 13, title: 'Quick Chess', platform: 'Mobile', category: 'Strategy', featured: false, description: 'Fast-paced online chess.', rating: 3.8 },
+            { id: 14, title: 'Rogue Planet', platform: 'PC', category: 'Survival', featured: false, description: 'Hardcore crafting and survival game.', rating: 4.5 },
+            { id: 15, title: 'Urban Legend', platform: 'Console', category: 'Horror', featured: false, description: 'Psychological horror experience.', rating: 4.0 },
+        ];
+
+        // --- Core Rendering Functions ---
+
+        /**
+         * Creates the HTML structure for a single game card.
+         * @param {object} game - The game object.
+         * @param {boolean} isCarousel - True if rendering for the featured carousel.
+         */
+        function createGameCard(game, isCarousel = false) {
+            const widthClass = isCarousel ? 'min-w-[140px] w-[140px] sm:min-w-[180px] sm:w-[180px]' : 'w-full';
+
+            // Placeholder image URL
+            const imageUrl = `https://placehold.co/300x200/2f496e/ffffff?text=${game.title.split(' ')[0]}+Game`;
+
+            return `
+                <div class="game-card ${widthClass} p-3 bg-card-bg rounded-xl cursor-pointer hover:shadow-xl hover:shadow-primary/20 flex flex-col justify-between">
+                    <!-- Image Placeholder -->
+                    <img src="${imageUrl}" alt="${game.title} Placeholder"
+                         class="rounded-lg object-cover mb-3 h-24 sm:h-32 w-full"
+                         onerror="this.onerror=null;this.src='https://placehold.co/300x200/1e293b/ffffff?text=Image+Error';">
+
+                    <div>
+                        <h3 class="text-sm sm:text-lg font-semibold truncate text-white mb-1">${game.title}</h3>
+                        <p class="text-xs text-slate-400 mb-2">${game.platform} • ${game.category}</p>
+                        <!-- Rating Star Icon (Inline SVG for simplicity) -->
+                        <div class="flex items-center text-yellow-400 text-sm">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.381-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            <span class="text-slate-300 text-xs font-medium">${game.rating}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Renders the featured carousel section.
+         */
+        function renderCarousel() {
+            const featuredGames = allGames.filter(game => game.featured);
+            const carouselContainer = document.getElementById('carousel-container');
+            carouselContainer.innerHTML = featuredGames.map(game => createGameCard(game, true)).join('');
+        }
+
+        /**
+         * Renders the main game list based on the filtered and searched results.
+         * @param {Array<object>} gamesToDisplay - The final list of games to render.
+         */
+        function renderGameList(gamesToDisplay) {
+            const listContainer = document.getElementById('game-list-main');
+            const noResults = document.getElementById('no-results');
+
+            if (gamesToDisplay.length === 0) {
+                listContainer.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            // Simple alphabetical sorting (in-memory sort)
+            gamesToDisplay.sort((a, b) => a.title.localeCompare(b.title));
+
+            listContainer.innerHTML = gamesToDisplay.map(game => createGameCard(game)).join('');
+            noResults.classList.add('hidden');
+        }
+
+        // --- Filtering and Searching Logic ---
+
+        let currentFilter = 'all';
+
+        /**
+         * Filters the games based on the selected platform filter and search input.
+         * @param {HTMLElement} clickedButton - Optional. The button element that was clicked.
+         */
+        function filterGames(clickedButton) {
+            // 1. Update Filter State
+            if (clickedButton) {
+                currentFilter = clickedButton.getAttribute('data-filter');
+                
+                // Update button styles to show active filter
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    const filter = btn.getAttribute('data-filter');
+                    if (filter === currentFilter) {
+                        btn.classList.add('bg-primary', 'text-white', 'shadow-md');
+                        btn.classList.remove('bg-card-bg', 'text-slate-300', 'hover:bg-slate-700');
+                    } else {
+                        btn.classList.add('bg-card-bg', 'text-slate-300', 'hover:bg-slate-700');
+                        btn.classList.remove('bg-primary', 'text-white', 'shadow-md');
+                    }
+                });
+            }
+
+            // 2. Get Search Term
+            const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+
+            // 3. Apply Filters
+            let filtered = allGames;
+
+            // Apply Platform Filter
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(game => game.platform === currentFilter);
+            }
+
+            // Apply Search Filter (by title or category)
+            if (searchTerm) {
+                filtered = filtered.filter(game =>
+                    game.title.toLowerCase().includes(searchTerm) ||
+                    game.category.toLowerCase().includes(searchTerm) ||
+                    game.description.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // 4. Render Results
+            renderGameList(filtered);
+        }
+
+        // --- Initialization ---
+        window.onload = function() {
+            // 1. Render the featured game carousel
+            renderCarousel();
+            // 2. Render the initial full game list
+            filterGames(document.querySelector('[data-filter="all"]'));
+        };
+    </script>
+</body>
+</html>

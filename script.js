@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <input 
             type="text" 
             id="gameSearch" 
-            placeholder="🔍 Search games by title..."
+            placeholder="Search games by title..."
             style="
                 width: 100%;
                 padding: 14px 20px;

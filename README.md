@@ -1,5 +1,7 @@
 **Nexus Gaming Hub - Modern Web Game Portal**
 
+Access it live at https://hellomanishahere.github.io/NEXUS/
+
 A modern game catalog and discovery platform for game enthusiasts to discover, explore and personalise their gaming experience. Inspired by the sleek, modern design of AAA game sites, it showcases mastery of fundamental web development by delivering a polished aesthetic alongside crucial dynamic features, built entirely using HTML, CSS, and Vanilla JavaScript. A capstone project demonstrating mastery of fundamental frontend web development by creating a responsive, interactive portal for accessing a curated list of games.
 
 ---
